@@ -2,8 +2,10 @@
 
 namespace app\controllers;
 
+use app\models\Stats;
 use Yii;
 use yii\base\Exception;
+use yii\data\ArrayDataProvider;
 use yii\filters\ContentNegotiator;
 use yii\filters\VerbFilter;
 use yii\helpers\Json;
@@ -17,7 +19,15 @@ class StatsController extends ActiveController
 
     public function actions(){
         $actions = parent::actions();
-        $actions['create']['modelClass'] = 'app\models\Stats';
+        $actions['index']['modelClass']             = 'app\models\Stats';
+        $actions['index']['prepareDataProvider']    = function(){
+            return new ArrayDataProvider([
+                'allModels' => Stats::findAll(10),
+            ]);
+        };
+
+        $actions['create']['modelClass']    = 'app\models\Stats';
+        $actions['view']['modelClass']      = 'app\models\Stats';
         return $actions;
     }
 
