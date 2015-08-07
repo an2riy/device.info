@@ -59,7 +59,7 @@ class StatsController extends ActiveController
 
             $valid =  parent::beforeAction($event);
 
-            if($valid && !preg_match('~'.Response::FORMAT_JSON.'~', Yii::$app->request->contentType)){
+            if($valid && in_array($event->id, ['create']) && !preg_match('~'.Response::FORMAT_JSON.'~', Yii::$app->request->contentType)){
 
                 Yii::$app->response->statusCode = 406;
                 $this->showError(Yii::$app->response->statusCode, "Content type must be '".Response::FORMAT_JSON."'");
