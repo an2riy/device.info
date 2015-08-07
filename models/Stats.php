@@ -39,7 +39,9 @@ class Stats extends Model
     {
         $this->stat_detail = new StatDetail();
 
-        $columns = array_keys(get_class_vars(get_class($this)));
+        $variables = get_class_vars(get_class($this));
+        $columns = array_keys($variables);
+
         $columns_detail = $this->stat_detail->getTableSchema()->getColumnNames();
 
         foreach($columns as $column){
@@ -75,7 +77,8 @@ class Stats extends Model
          */
         $model_detail = StatDetail::findOne($condition);
 
-        $columns = array_keys(get_class_vars(get_called_class()));
+        $variables = get_class_vars(get_called_class());
+        $columns = array_keys($variables);
         array_pop($columns);
 
         return self::prepareModelToShow($model_detail, $columns);
@@ -91,7 +94,9 @@ class Stats extends Model
         $attributes = $model->getAttributes();
 
         $class = new \stdClass();
-        $class->{array_shift(StatDetail::primaryKey())} = $model->getPrimaryKey();
+        $keys = StatDetail::primaryKey();
+
+        $class->{array_shift($keys)} = $model->getPrimaryKey();
 
         foreach($columns as $column){
 
@@ -153,12 +158,15 @@ class Stats extends Model
      */
     public static function findAll($limit){
 
+        $keys = StatDetail::primaryKey();
+
         $models = StatDetail::find()
-            ->orderBy([array_shift(StatDetail::primaryKey()) => SORT_DESC])
+            ->orderBy([array_shift($keys) => SORT_DESC])
             ->limit($limit)
             ->all();
 
-        $columns = array_keys(get_class_vars(get_called_class()));
+        $variables = get_class_vars(get_called_class());
+        $columns = array_keys($variables);
         array_pop($columns);
 
         $models_prepared = [];
