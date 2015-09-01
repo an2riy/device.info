@@ -14,6 +14,7 @@ class Stats extends Model
      public $DeviseInfo;
      public $IMSI;
      public $location;
+     public $telephony;
 
     /**
      * @var null|StatDetail
@@ -26,7 +27,7 @@ class Stats extends Model
     public function rules()
     {
         return [
-            [['timestamp', 'network', 'DeviseInfo', 'IMSI', 'location'], 'required'],
+            [['timestamp', 'network', 'DeviseInfo', 'IMSI', 'location', 'telephony'], 'required'],
             [['timestamp'], 'integer']
         ];
     }
@@ -37,6 +38,11 @@ class Stats extends Model
      */
     public function save()
     {
+
+        if(!$this->validate()){
+            return 0;
+        }
+
         $this->stat_detail = new StatDetail();
 
         $variables = get_class_vars(get_class($this));
@@ -171,7 +177,7 @@ class Stats extends Model
 
         $models_prepared = [];
         foreach($models as $model){
-            $models_prepared[] =self::prepareModelToShow($model, $columns);
+            $models_prepared[] = self::prepareModelToShow($model, $columns);
         }
 
         return $models_prepared;
