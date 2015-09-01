@@ -27,7 +27,7 @@ class Stats extends Model
     public function rules()
     {
         return [
-            [['timestamp', 'network', 'DeviseInfo', 'IMSI', 'location', 'telephony'], 'required'],
+            [['timestamp', 'network', 'DeviseInfo', 'IMSI'], 'required'],
             [['timestamp'], 'integer']
         ];
     }
