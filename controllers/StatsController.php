@@ -108,4 +108,10 @@ class StatsController extends ActiveController
 
     }
 
+    public function actionGetIp(){
+        return [
+            "IP" => Yii::$app->request->userIP
+        ];
+    }
+
 }
