@@ -2,10 +2,10 @@
 
 namespace app\controllers;
 
+use app\models\ArrayDataProvider;
 use app\models\Stats;
 use Yii;
 use yii\base\Exception;
-use yii\data\ArrayDataProvider;
 use yii\filters\ContentNegotiator;
 use yii\filters\VerbFilter;
 use yii\helpers\Json;
@@ -21,12 +21,18 @@ class StatsController extends ActiveController
         $actions = parent::actions();
         $actions['index']['modelClass']             = 'app\models\Stats';
         $actions['index']['prepareDataProvider']    = function(){
+
+            $page       = Yii::$app->request->get('page', 1) - 1;
+            $pageSize   = Yii::$app->request->get('per-page', 10);
+
             return new ArrayDataProvider([
-                'allModels' => Stats::findAll(10),
-                'pagination'=> [
-                    'pageSize' => 10,
+                'allModels'  => Stats::findAll($pageSize, $page * $pageSize, $total),
+                'totalCount' => $total,
+                'pagination' => [
+                    'pageSize' => $pageSize,
                 ],
             ]);
+
         };
 
         $actions['create']['modelClass']    = 'app\models\Stats';

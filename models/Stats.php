@@ -159,17 +159,23 @@ class Stats extends Model
     }
 
     /**
-     * @param $limit
+     * @param int $limit
+     * @param int $offset
+     * @param int $total
      * @return array
      */
-    public static function findAll($limit){
+    public static function findAll($limit = 0, $offset = 0, &$total = 0){
 
         $keys = StatDetail::primaryKey();
 
         $models = StatDetail::find()
-            ->orderBy([array_shift($keys) => SORT_DESC])
-            ->limit($limit)
+            ->select    ('*', 'SQL_CALC_FOUND_ROWS')
+            ->orderBy   ([array_shift($keys) => SORT_DESC])
+            ->offset    ((int)$offset)
+            ->limit     ((int)$limit)
             ->all();
+
+        $total = StatDetail::getDb()->createCommand('SELECT FOUND_ROWS()')->queryScalar();
 
         $variables = get_class_vars(get_called_class());
         $columns = array_keys($variables);
