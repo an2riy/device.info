@@ -23,6 +23,9 @@ class StatsController extends ActiveController
         $actions['index']['prepareDataProvider']    = function(){
             return new ArrayDataProvider([
                 'allModels' => Stats::findAll(10),
+                'pagination'=> [
+                    'pageSize' => 10,
+                ],
             ]);
         };
 
