@@ -41,7 +41,7 @@ class StatDetail extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'stats_detail';
+        return '{{%stats_detail}}';
     }
 
 
