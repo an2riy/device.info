@@ -6,14 +6,41 @@ use Yii;
 use yii\base\Model;
 use yii\helpers\Json;
 
+/**
+ * Class Stats
+ * @package app\models
+ */
 class Stats extends Model
 {
 
+    /**
+     * @var
+     */
      public $timestamp;
+
+    /**
+     * @var
+     */
      public $network;
+
+    /**
+     * @var
+     */
      public $DeviseInfo;
+
+    /**
+     * @var
+     */
      public $IMSI;
+
+    /**
+     * @var
+     */
      public $location;
+
+    /**
+     * @var
+     */
      public $telephony;
 
     /**
@@ -28,7 +55,8 @@ class Stats extends Model
     {
         return [
             [['timestamp', 'network', 'DeviseInfo', 'IMSI'], 'required'],
-            [['timestamp'], 'integer']
+            [['timestamp'], 'integer'],
+            [['location'], 'safe']
         ];
     }
 
