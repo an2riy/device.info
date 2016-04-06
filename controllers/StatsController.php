@@ -8,15 +8,28 @@ use Yii;
 use yii\base\Exception;
 use yii\filters\ContentNegotiator;
 use yii\filters\VerbFilter;
-use yii\helpers\Json;
 use yii\rest\ActiveController;
 use yii\web\Response;
 
+/**
+ * Class StatsController
+ * @package app\controllers
+ */
 class StatsController extends ActiveController
 {
+    /**
+     * @var string
+     */
     public $modelClass = 'app\models\StatDetail';
+
+    /**
+     * @var bool
+     */
     public $enableCsrfValidation = false;
 
+    /**
+     * @return array
+     */
     public function actions(){
         $actions = parent::actions();
         $actions['index']['modelClass']             = 'app\models\Stats';
@@ -37,9 +50,13 @@ class StatsController extends ActiveController
 
         $actions['create']['modelClass']    = 'app\models\Stats';
         $actions['view']['modelClass']      = 'app\models\Stats';
+
         return $actions;
     }
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -62,6 +79,10 @@ class StatsController extends ActiveController
         ];
     }
 
+    /**
+     * @param \yii\base\Action $event
+     * @return bool
+     */
     public function beforeAction($event){
 
         try {
@@ -70,28 +91,23 @@ class StatsController extends ActiveController
 
             if($valid && in_array($event->id, ['create']) && !preg_match('~'.Response::FORMAT_JSON.'~', Yii::$app->request->contentType)){
 
-                Yii::$app->response->statusCode = 406;
-                $this->showError(Yii::$app->response->statusCode, "Content type must be '".Response::FORMAT_JSON."'");
-
+                $this->showError(406, "Content type must be '".Response::FORMAT_JSON."'");
                 return false;
+
             }
 
             if($valid && in_array($event->id, ['update', 'delete'])){
 
-                Yii::$app->response->statusCode = 403;
-                $this->showError(Yii::$app->response->statusCode, "Access denied to action '".$event->id."'");
-
+                $this->showError(403, "Access denied to action '".$event->id."'");
                 return false;
+
             }
 
             return $valid;
 
         } catch (Exception $e){
 
-            Yii::$app->response->statusCode = 405;
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            $this->showError(Yii::$app->response->statusCode, $e->getMessage());
-
+            $this->showError(405, $e->getMessage());
             return false;
 
         }
@@ -106,17 +122,23 @@ class StatsController extends ActiveController
         $error = [
             "name"      => "Bad Request",
             "message"   =>  "",
-            "code"      =>  0,
             "status"    =>  0,
         ];
 
         $error['message']   =   $message;
         $error['status']    =   $code;
 
-        echo Json::encode($error);
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        Yii::$app->response->statusCode = $code;
+        Yii::$app->response->data = $error;
+        Yii::$app->response->send();
 
     }
 
+    /**
+     * @return array
+     */
     public function actionGetIp(){
         return [
             "IP" => Yii::$app->request->userIP
