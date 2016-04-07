@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\base\Model;
+use yii\db\ActiveRecord;
 use yii\helpers\Json;
 
 /**
@@ -56,7 +57,7 @@ class Stats extends Model
         return [
             [['timestamp', 'network', 'DeviseInfo', 'IMSI'], 'required'],
             [['timestamp'], 'integer'],
-            [['location'], 'safe']
+            [['location', 'telephony'], 'safe']
         ];
     }
 
@@ -119,7 +120,7 @@ class Stats extends Model
     }
 
     /**
-     * @param StatDetail $model
+     * @param StatDetail|ActiveRecord $model
      * @param $columns
      * @return \stdClass
      */
