@@ -4,7 +4,6 @@ namespace app\models;
 
 use Yii;
 use yii\base\Model;
-use yii\db\ActiveRecord;
 use yii\helpers\Json;
 
 /**
@@ -50,6 +49,16 @@ class Stats extends Model
     private $stat_detail = null;
 
     /**
+     * @var array
+     */
+    private static $multi_field = ['IMSI', 'telephony'];
+
+    /**
+     * @var array
+     */
+    private static $exclude_field = ['stat_detail', 'multi_field', 'exclude_field'];
+
+    /**
      * @inheritdoc
      */
     public function rules()
@@ -75,7 +84,7 @@ class Stats extends Model
         $this->stat_detail = new StatDetail();
 
         $variables = get_class_vars(get_class($this));
-        $columns = array_keys($variables);
+        $columns = array_diff(array_keys($variables), self::$exclude_field);
 
         $columns_detail = $this->stat_detail->getTableSchema()->getColumnNames();
 
@@ -113,14 +122,13 @@ class Stats extends Model
         $model_detail = StatDetail::findOne($condition);
 
         $variables = get_class_vars(get_called_class());
-        $columns = array_keys($variables);
-        array_pop($columns);
+        $columns = array_diff(array_keys($variables), self::$exclude_field);
 
         return self::prepareModelToShow($model_detail, $columns);
     }
 
     /**
-     * @param StatDetail|ActiveRecord $model
+     * @param StatDetail $model
      * @param $columns
      * @return \stdClass
      */
@@ -136,20 +144,20 @@ class Stats extends Model
         foreach($columns as $column){
 
             $class->{$column} = null;
-            $diff_only_id = [];
+            $multi_field = [];
 
             foreach($attributes as $key => $val){
                 $name = [];
                 if (preg_match('~' . $column . '_(.*)~', $key, $name)) {
 
-                    if(in_array($column, ["IMSI"])){
+                    if(in_array($column, self::$multi_field)){
 
                         $name_m = [];
                         if (preg_match('~^(.*)_(.*)~', $name[1], $name_m)) {
-                            if(!isset($diff_only_id[$name_m[2]])){
-                                $diff_only_id[$name_m[2]] = new \stdClass();
+                            if(!isset($multi_field[$name_m[2]])){
+                                $multi_field[$name_m[2]] = new \stdClass();
                             }
-                            $diff_only_id[$name_m[2]]->{$name_m[1]} = $val;
+                            $multi_field[$name_m[2]]->{$name_m[1]} = $val;
                         }
 
                     } else {
@@ -165,8 +173,8 @@ class Stats extends Model
 
             }
 
-            if($column == "IMSI" && !empty($diff_only_id)){
-                $class->{$column} = array_values($diff_only_id);
+            if(in_array($column, self::$multi_field) && !empty($multi_field)){
+                $class->{$column} = array_values($multi_field);
             }
 
         }
@@ -207,8 +215,7 @@ class Stats extends Model
         $total = StatDetail::getDb()->createCommand('SELECT FOUND_ROWS()')->queryScalar();
 
         $variables = get_class_vars(get_called_class());
-        $columns = array_keys($variables);
-        array_pop($columns);
+        $columns =  array_diff(array_keys($variables), self::$exclude_field);
 
         $models_prepared = [];
         foreach($models as $model){
@@ -228,7 +235,7 @@ class Stats extends Model
         $data = $this->{$name_column};
         if($data) {
 
-            if(in_array($name_column, ['IMSI'])){
+            if(in_array($name_column, self::$multi_field)){
                 foreach ($data as $k => $v) {
                     foreach ($v as $key => $val) {
 
